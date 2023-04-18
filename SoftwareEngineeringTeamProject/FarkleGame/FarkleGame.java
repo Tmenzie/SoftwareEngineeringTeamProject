@@ -1,11 +1,12 @@
 package FarkleGame;
 
-import java.io.DataInputStream;
-
 //Credit To Tianyoul On GitHub For Help With Final
 //Score Implementation And Randomizer Function
 
-public class Game {
+//Author: 			Adams Smith
+//Description:		
+
+public class FarkleGame {
 	public static final int WINNING_SCORE = 10000;
 	private User p0;
     private User p1;
@@ -288,7 +289,9 @@ public class Game {
 
     private String setDiceAside(){
         String valueAside = "";
-        if (!d0.setAside){
+        
+        
+        /*if (!d0.setAside){
         	//Set Aside Dice? Potentially Made Into Button?
             if (readBoolean("Would you like to set D0 aside? (true or false)")){
                 d0.setSetAside();
@@ -324,9 +327,10 @@ public class Game {
                 d5.setSetAside();
                 valueAside=valueAside + d5.getRolledNum();
             }
-        }
+        }*/
         return valueAside;
     }
+    
 
     public boolean testForWin(User p){
         return (p.getScore() >= WINNING_SCORE);
