@@ -26,7 +26,8 @@ public class GUI_Client extends JFrame{
 	
 	// Client object
 	private FarkleClient client;
-	
+	private boolean playing = false;
+	private boolean StartGame = false;
 	// JFrames and JPanels
 	private JFrame FarkleGameFrame;
 	private JPanel Dice6SelectionIndicator;
@@ -44,6 +45,7 @@ public class GUI_Client extends JFrame{
 	private boolean Dice5isSelected;
 	private boolean Dice6isSelected;
 	
+	// Booleans for DiceSelectionIndicators
 	private boolean Dice1isSelectedIndicator = false;
 	private boolean Dice2isSelectedIndicator = false;
 	private boolean Dice3isSelectedIndicator = false;
@@ -54,11 +56,13 @@ public class GUI_Client extends JFrame{
 
 	// Create the application
 	public GUI_Client() {
-		initialize();
+		System.out.println("Entered GUI_Client");
+		login();
 	}
 	
-	//
+	
 	private void login() {
+		System.out.println("Entered login");
 		FarkleClient client = new FarkleClient();
 		client.setHost("localhost");
 		client.setPort(8300);
@@ -82,7 +86,7 @@ public class GUI_Client extends JFrame{
 	    //Create the Controllers next
 	    //Next, create the Controllers
 	    InitialControl ic = new InitialControl(container); 
-	    LoginControl lc = new LoginControl(container, client, this);
+	    LoginControl lc = new LoginControl(container, client, this, StartGame);
 	    CreateAccountControl cac = new CreateAccountControl(container, client, this);
 	    
 	    // Set client info
@@ -108,11 +112,18 @@ public class GUI_Client extends JFrame{
 	    // Show the JFrame.
 	    this.setSize(550, 350);
 	    this.setVisible(true);
+	    
+	}
+	
+	public boolean StartGame()
+	{
+		playing = true;
+		return playing;
 	}
 	
 	// Initialize the contents of the frame.
 	public void initialize() {
-		
+	
 		// Start of the Farkle Game Frame
 		FarkleGameFrame = new JFrame();
 		FarkleGameFrame.setTitle("Farkle Client");
@@ -433,8 +444,10 @@ public class GUI_Client extends JFrame{
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
+					System.out.println("ENTERED MAIN");
 					GUI_Client window = new GUI_Client();
-					window.FarkleGameFrame.setVisible(true);
+					System.out.println("Still in main before setting to visible");
+					//window.FarkleGameFrame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}

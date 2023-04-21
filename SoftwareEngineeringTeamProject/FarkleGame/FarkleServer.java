@@ -15,7 +15,7 @@ public class FarkleServer extends AbstractServer{
 	private JTextArea log;
 	private JLabel status;
 	private Database database;
-	
+	public boolean playing;
 	public FarkleServer() {
 		
 		super(12345);

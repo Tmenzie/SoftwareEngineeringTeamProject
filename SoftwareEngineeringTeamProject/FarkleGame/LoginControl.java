@@ -14,13 +14,16 @@ public class LoginControl implements ActionListener
   private JPanel container;
   private FarkleClient chatClient;
   private JFrame jframe;
+  private boolean playing;
+  public boolean StartGame;
   
   // Constructor for the login controller.
-  public LoginControl(JPanel container, FarkleClient chatClient, JFrame jframe)
+  public LoginControl(JPanel container, FarkleClient chatClient, JFrame jframe, boolean StartGame)
   {
     this.container = container;
     this.chatClient = chatClient;
     this.jframe = jframe;
+    this.StartGame = StartGame;
    
   }
   
@@ -50,7 +53,7 @@ public class LoginControl implements ActionListener
         displayError("You must enter a username and password.");
         return;
       }
-
+     
       // Submit the login information to the server.
       try {
     	  chatClient.sendToServer(data);
@@ -60,14 +63,34 @@ public class LoginControl implements ActionListener
     	  e.printStackTrace();
       } 
     }
+   
   }
-
+public boolean playing() {
+	System.out.println("Entered PLaying");
+	StartGame = playing;
+	System.out.println(StartGame + " In LOGIN CONTROL");
+	return StartGame;
+}
   // After the login is successful, set the User object and display the contacts screen. - this method would be invoked by 
   //the ChatClient
   public void loginSuccess() {
+	  System.out.println("Entered LoginSuccess");
 		jframe.setVisible(false);
+		//StartGame = true;
+		//playing();
 		jframe.dispose();
+		GUI_Client game = new GUI_Client();
+		this.StartGame = game.StartGame();
+		System.out.println(StartGame + " In LOGIN Success");
+		if(StartGame == true)
+		{
+			GUI_Client StartGame= new GUI_Client();
+			StartGame.initialize();
+		}
 		System.exit(0);
+	
+		
+		//return StartGame;
   }
 
   // Method that displays a message in the error - could be invoked by ChatClient or by this class (see above)
