@@ -1,4 +1,4 @@
-package FarkleGame;
+package NotUsed;
 
 public class User {
 	

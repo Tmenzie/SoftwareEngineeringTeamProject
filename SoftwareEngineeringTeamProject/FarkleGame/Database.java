@@ -12,13 +12,13 @@ public class Database {
 	// Private connection object
 	private Connection connection;
 	
-	public void setConnection(String fn) {
+	public Database() {
 		// Creation of properties and file input objects
 		Properties file_properties = new Properties();
 		FileInputStream fis = null;
-				
+						
 		try {
-			fis = new FileInputStream("FarkleGame/" + fn);
+			fis = new FileInputStream("FarkleGame/farkle_database.properties");
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
@@ -28,11 +28,11 @@ public class Database {
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		}
-				
+						
 		String url = file_properties.getProperty("url");
 		String user = file_properties.getProperty("user");
 		String pass = file_properties.getProperty("password");
-						
+								
 		try {	
 			Class.forName("com.mysql.jdbc.Driver");
 			connection = DriverManager.getConnection(url, user, pass);
@@ -40,11 +40,7 @@ public class Database {
 			e.printStackTrace();
 		} catch(ClassNotFoundException e) {
 			e.printStackTrace();
-		}
-	}
-	
-	public Connection getConnection() {
-		return connection;
+		}	
 	}
 	
 	public ArrayList<String> query (String query) {

@@ -13,12 +13,14 @@ public class LoginControl implements ActionListener
   // Private data fields for the container and chat client.
   private JPanel container;
   private FarkleClient chatClient;
+  private JFrame jframe;
   
   // Constructor for the login controller.
-  public LoginControl(JPanel container, FarkleClient chatClient)
+  public LoginControl(JPanel container, FarkleClient chatClient, JFrame jframe)
   {
     this.container = container;
     this.chatClient = chatClient;
+    this.jframe = jframe;
    
   }
   
@@ -63,9 +65,9 @@ public class LoginControl implements ActionListener
   // After the login is successful, set the User object and display the contacts screen. - this method would be invoked by 
   //the ChatClient
   public void loginSuccess() {
-	  LoginPanel loginPanel = (LoginPanel)container.getComponent(1);
-	  CardLayout cardLayout = (CardLayout)container.getLayout();
-	  cardLayout.show(container, "4");
+		jframe.setVisible(false);
+		jframe.dispose();
+		System.exit(0);
   }
 
   // Method that displays a message in the error - could be invoked by ChatClient or by this class (see above)

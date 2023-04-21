@@ -42,8 +42,6 @@ public class FarkleServer extends AbstractServer{
 		// Return message/object
 		Object toClient = null;
 		
-		
-		
 		// PERFORMED IF LOGINDATA IS RECEIVED
 		if (arg0 instanceof LoginData) {
 			LoginData toVerify = (LoginData) arg0;

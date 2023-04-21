@@ -1,4 +1,4 @@
-package FarkleGame;
+package NotUsed;
 
 //Credit To Tianyoul On GitHub For Help With Final
 //Score Implementation And Randomizer Function
