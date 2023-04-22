@@ -18,7 +18,7 @@ public class CreateAccountPanel extends JPanel {
 	public CreateAccountPanel(CreateAccountControl cac) {
 		
 		// Creation of label panel
-		JPanel labelPanel = new JPanel(new GridLayout(3, 1, 5, 5));
+		JPanel labelPanel = new JPanel(new GridLayout(4, 1, 5, 5));
 		
 		// Creation of error label
 		errorLabel = new JLabel("", JLabel.CENTER);
@@ -26,12 +26,14 @@ public class CreateAccountPanel extends JPanel {
 		
 		// Creation of instruction label
 		JLabel instructionLabel = new JLabel("Enter a username and password to create an account.", JLabel.CENTER);
-		JLabel instructionLabel2 = new JLabel("Your password must be at least 6 characters.", JLabel.CENTER);    
+		JLabel instructionLabel2 = new JLabel("Your password must be at least 6 characters.", JLabel.CENTER); 
+		JLabel instructionLabel3 = new JLabel("You will be logged in upon successful account creation.", JLabel.CENTER);
 		
 		// Adds labels to label panel
 		labelPanel.add(errorLabel);
 		labelPanel.add(instructionLabel);
 		labelPanel.add(instructionLabel2);
+		labelPanel.add(instructionLabel3);
 
 		// Creation of account info panel
 		JPanel accountPanel = new JPanel(new GridLayout(3, 2, 5, 5));

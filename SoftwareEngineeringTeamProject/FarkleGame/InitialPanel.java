@@ -24,7 +24,7 @@ public class InitialPanel extends JPanel
     loginButtonBuffer.add(loginButton);
     
     // Create the create account button.
-    JButton createButton = new JButton("Create");
+    JButton createButton = new JButton("Create and Login");
     createButton.addActionListener(ic);
     JPanel createButtonBuffer = new JPanel();
     createButtonBuffer.add(createButton);

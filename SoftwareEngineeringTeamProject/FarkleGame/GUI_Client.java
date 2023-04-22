@@ -4,7 +4,6 @@ package FarkleGame;
 // Objective: Farkle Game GUI
 
 
-import java.awt.EventQueue;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
@@ -29,12 +28,6 @@ public class GUI_Client extends JFrame{
 	
 	// JFrames and JPanels
 	private JFrame FarkleGameFrame;
-	private JPanel Dice6SelectionIndicator;
-	private JPanel Dice5SelectionIndicator;
-	private JPanel Dice4SelectionIndicator;
-	private JPanel Dice3SelectionIndicator;
-	private JPanel Dice2SelectionIndicator;
-	private JPanel Dice1SelectionIndicator;
 	
 	// Booleans for die
 	private boolean Dice1isSelected;
@@ -43,23 +36,14 @@ public class GUI_Client extends JFrame{
 	private boolean Dice4isSelected;
 	private boolean Dice5isSelected;
 	private boolean Dice6isSelected;
-	
-	private boolean Dice1isSelectedIndicator = false;
-	private boolean Dice2isSelectedIndicator = false;
-	private boolean Dice3isSelectedIndicator = false;
-	private boolean Dice4isSelectedIndicator = false;
-	private boolean Dice5isSelectedIndicator = false;
-	private boolean Dice6isSelectedIndicator = false;
 
-
-	// Create the application
-	public GUI_Client() {
-		initialize();
+	// Constructor
+	public GUI_Client(FarkleClient client) {
+		this.client = client;
 	}
 	
-	//
-	private void login() {
-		FarkleClient client = new FarkleClient();
+	public void login(GUI_Client gui) {
+		System.out.println("Entered login");
 		client.setHost("localhost");
 		client.setPort(8300);
 		
@@ -82,8 +66,8 @@ public class GUI_Client extends JFrame{
 	    //Create the Controllers next
 	    //Next, create the Controllers
 	    InitialControl ic = new InitialControl(container); 
-	    LoginControl lc = new LoginControl(container, client, this);
-	    CreateAccountControl cac = new CreateAccountControl(container, client, this);
+	    LoginControl lc = new LoginControl(container, client, this, gui);
+	    CreateAccountControl cac = new CreateAccountControl(container, client, this, gui);
 	    
 	    // Set client info
 	    client.setLoginControl(lc);
@@ -406,6 +390,7 @@ public class GUI_Client extends JFrame{
 		Player2ScoreNameArea.setBounds(10, 127, 64, 22);
 		FarkleGameFrame.getContentPane().add(Player2ScoreNameArea);
 		
+		FarkleGameFrame.setVisible(true);
 	}	
 	
 	private int[] GetDice() {
@@ -425,21 +410,6 @@ public class GUI_Client extends JFrame{
 		System.out.print(rand);
 		
 		return arr;
-	}
-	
-	// Launch the application.
-	public static void main(String[] args) {
-		
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					GUI_Client window = new GUI_Client();
-					window.FarkleGameFrame.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
 	}
 }
 	

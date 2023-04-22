@@ -195,11 +195,4 @@ public class GUI_Server extends JFrame {
 		server.setLog(serverlog);
         
 	}
-
-	// Main driver
-	// Creates farkle server GUI
-	public static void main(String[] args){
-		new GUI_Server(); //args[0] represents the title of the GUI
-	}
-	
 }

@@ -1,11 +1,16 @@
 package FarkleGame;
 
+import java.awt.EventQueue;
+
 import ocsf.client.AbstractClient;
 
 //Author: 			Shandon Probst
 //Description:		
 
 public class FarkleClient extends AbstractClient{
+	
+	// Objects
+	GUI_Client gui;
 	
 	// Controllers
 	private LoginControl loginControl;
@@ -43,7 +48,7 @@ public class FarkleClient extends AbstractClient{
 		
 		return this.username;
 	}
-
+	
 	@Override
 	protected void handleMessageFromServer(Object arg0) {
 
@@ -52,8 +57,9 @@ public class FarkleClient extends AbstractClient{
 	    	String message = (String)arg0;
 	      
 	    	// Tells controller login was successful
-	    	if (message.equals("LoginSuccessful"))
+	    	if (message.equals("LoginSuccessful")) {
 	    		loginControl.loginSuccess();
+	    	}
 	      
 	    	// Tells controller account creation was successful
 	    	else if (message.equals("CreateAccountSuccessful"))
@@ -72,5 +78,16 @@ public class FarkleClient extends AbstractClient{
 	    	else if (error.getType().equals("CreateAccount"))
 	    		createAccountControl.displayError(error.getMessage());
 	    }
+	}
+	
+	// Main driver
+	// Creates farkle client GUI
+	public static void main(String[] args) {
+		FarkleClient client = new FarkleClient();
+		System.out.println("ENTERED MAIN");
+		GUI_Client client_gui = new GUI_Client(client);
+		System.out.println("Still in main before setting to visible");
+		
+		client_gui.login(client_gui);
 	}
 }

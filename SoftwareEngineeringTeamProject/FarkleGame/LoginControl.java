@@ -12,15 +12,17 @@ public class LoginControl implements ActionListener
 {
   // Private data fields for the container and chat client.
   private JPanel container;
-  private FarkleClient chatClient;
+  private FarkleClient client;
   private JFrame jframe;
+  private GUI_Client gui;
   
   // Constructor for the login controller.
-  public LoginControl(JPanel container, FarkleClient chatClient, JFrame jframe)
+  public LoginControl(JPanel container, FarkleClient client, JFrame jframe, GUI_Client gui)
   {
     this.container = container;
-    this.chatClient = chatClient;
+    this.client = client;
     this.jframe = jframe;
+    this.gui = gui;
    
   }
   
@@ -53,7 +55,7 @@ public class LoginControl implements ActionListener
 
       // Submit the login information to the server.
       try {
-    	  chatClient.sendToServer(data);
+    	  client.sendToServer(data);
 	  } 
       catch (IOException e) {
     	  // TODO Auto-generated catch block
@@ -62,12 +64,15 @@ public class LoginControl implements ActionListener
     }
   }
 
-  // After the login is successful, set the User object and display the contacts screen. - this method would be invoked by 
-  //the ChatClient
-  public void loginSuccess() {
-		jframe.setVisible(false);
-		jframe.dispose();
-		System.exit(0);
+// After the login is successful, set the User object and display the game screen. - this method would be invoked by 
+//the FarkleClient
+public void loginSuccess() {  
+	// Hide login frame
+	jframe.setVisible(false);
+	jframe.dispose();
+	
+	// Initialize game
+	gui.initialize();
   }
 
   // Method that displays a message in the error - could be invoked by ChatClient or by this class (see above)
