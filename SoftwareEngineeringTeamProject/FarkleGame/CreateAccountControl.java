@@ -13,12 +13,14 @@ public class CreateAccountControl implements ActionListener {
 	private JPanel container;
 	private FarkleClient client;
 	private JFrame jframe;
+	private GUI_Client gui;
   
 	// Constructor for the create account controller.
-	public CreateAccountControl(JPanel container, FarkleClient client, JFrame jframe) {
+	public CreateAccountControl(JPanel container, FarkleClient client, JFrame jframe, GUI_Client gui) {
 		this.container = container;
 		this.client = client;
 		this.jframe = jframe;
+		this.gui = gui;
 	}
   
 	// Handle button clicks.
@@ -71,8 +73,12 @@ public class CreateAccountControl implements ActionListener {
 
 	// Displays contacts screen after account creation
 	public void createAccountSuccess() {
+		// Hide login frame
 		jframe.setVisible(false);
 		jframe.dispose();
+		
+		// Initialize game
+		gui.initialize();
 	}
   
 	// Displays the error label

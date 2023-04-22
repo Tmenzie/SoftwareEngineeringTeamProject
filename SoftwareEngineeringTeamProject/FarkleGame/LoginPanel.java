@@ -35,7 +35,7 @@ public class LoginPanel extends JPanel
   // Constructor for the login panel.
   public LoginPanel(LoginControl lc)
   {
-    // Create the controller and set it in the chat client.
+    // Create the controller and set it in the client
     //LoginControl controller = new LoginControl(container, client);
     //client.setLoginControl(controller);
         

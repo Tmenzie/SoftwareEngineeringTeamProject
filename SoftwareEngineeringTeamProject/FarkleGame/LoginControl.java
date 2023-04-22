@@ -12,18 +12,17 @@ public class LoginControl implements ActionListener
 {
   // Private data fields for the container and chat client.
   private JPanel container;
-  private FarkleClient chatClient;
+  private FarkleClient client;
   private JFrame jframe;
-  private boolean playing;
-  public boolean StartGame;
+  private GUI_Client gui;
   
   // Constructor for the login controller.
-  public LoginControl(JPanel container, FarkleClient chatClient, JFrame jframe, boolean StartGame)
+  public LoginControl(JPanel container, FarkleClient client, JFrame jframe, GUI_Client gui)
   {
     this.container = container;
-    this.chatClient = chatClient;
+    this.client = client;
     this.jframe = jframe;
-    this.StartGame = StartGame;
+    this.gui = gui;
    
   }
   
@@ -53,44 +52,27 @@ public class LoginControl implements ActionListener
         displayError("You must enter a username and password.");
         return;
       }
-     
+
       // Submit the login information to the server.
       try {
-    	  chatClient.sendToServer(data);
+    	  client.sendToServer(data);
 	  } 
       catch (IOException e) {
     	  // TODO Auto-generated catch block
     	  e.printStackTrace();
       } 
     }
-   
   }
-public boolean playing() {
-	System.out.println("Entered PLaying");
-	StartGame = playing;
-	System.out.println(StartGame + " In LOGIN CONTROL");
-	return StartGame;
-}
-  // After the login is successful, set the User object and display the contacts screen. - this method would be invoked by 
-  //the ChatClient
-  public void loginSuccess() {
-	  System.out.println("Entered LoginSuccess");
-		jframe.setVisible(false);
-		//StartGame = true;
-		//playing();
-		jframe.dispose();
-		GUI_Client game = new GUI_Client();
-		this.StartGame = game.StartGame();
-		System.out.println(StartGame + " In LOGIN Success");
-		if(StartGame == true)
-		{
-			GUI_Client StartGame= new GUI_Client();
-			StartGame.initialize();
-		}
-		System.exit(0);
+
+// After the login is successful, set the User object and display the game screen. - this method would be invoked by 
+//the FarkleClient
+public void loginSuccess() {  
+	// Hide login frame
+	jframe.setVisible(false);
+	jframe.dispose();
 	
-		
-		//return StartGame;
+	// Initialize game
+	gui.initialize();
   }
 
   // Method that displays a message in the error - could be invoked by ChatClient or by this class (see above)
