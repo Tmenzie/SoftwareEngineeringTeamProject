@@ -70,16 +70,6 @@ public class CreateAccountControl implements ActionListener {
     		}
     	}
 	}
-
-	// Displays contacts screen after account creation
-	public void createAccountSuccess() {
-		// Hide login frame
-		jframe.setVisible(false);
-		jframe.dispose();
-		
-		// Initialize game
-		gui.initialize();
-	}
   
 	// Displays the error label
 	public void displayError(String error) {
