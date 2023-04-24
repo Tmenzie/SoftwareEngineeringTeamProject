@@ -6,9 +6,7 @@ import javax.swing.*;
 import java.io.IOException;
 import java.util.Random;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
+import java.util.HashMap;
 
 //Author: 			Tyler Menzie
 //Description: 		Farkle Game GUI
@@ -241,54 +239,30 @@ public class GUI_Client extends JFrame {
 		        for (int i = 0; i < dice_buttons.size(); i++) {
 		            if (dice_selected.get(i).equals(true)) {
 		                selected_dice.add(dice_values.get(i));
-		                System.out.println("Currently selected: Die #" + i);
 		            }
 		        }
 		        
-		        /*
-		        // Get list of all valid combinations
-		        ArrayList<ArrayList<Integer>> valid_combinations = checkDice(dice_values, dice_set_aside);
+		        // Verify and score the selected dice
+		        int round_score = getScore(selected_dice);
+		        score += round_score;
+		        System.out.println("Round score: " + round_score);
+		        System.out.println("Total score: " + score);
 		        
-		        // Create a list to store all the combinations that match the selected dice
-		        ArrayList<ArrayList<Integer>> matching_combinations = new ArrayList<>();
-		        
-		        // Check if selected dice match any valid combinations
-		        for (ArrayList<Integer> combination : valid_combinations) {
-		            boolean match = true;
-		            for (int die_value : combination) {
-		                if (!selected_dice.contains(die_value)) {
-		                    match = false;
-		                    break;
-		                }
-		            }
-		            if (match) {
-		                // Add the matching combination to the list of matching combinations
-		                matching_combinations.add(combination);
-		            }
-		        }
-		        
-		        // Add score for each matching combination and set corresponding dice_set_aside elements to true
-		        for (ArrayList<Integer> combination : matching_combinations) {
-		            score += scoreCombination(combination);
-		            for (int i = 0; i < dice_values.size(); i++) {
-		                if (selected_dice.contains(dice_values.get(i))) {
-		                    dice_set_aside.set(i, true);
-		                }
-		            }
-		        }
-		        */
+		        // Clear the list of selected dice
+		        selected_dice.clear();
 		        
 		        // Loop through and disable dice buttons that were selected
 		        for (int i = 0; i < dice_buttons.size(); i++) {
 		            if (dice_selected.get(i).equals(true)) {
-		                dice_buttons.get(i).setEnabled(false);
+		                dice_selected.set(i, false);
 		                dice_set_aside.set(i, true);
+		                dice_buttons.get(i).setEnabled(false);
 		            }
 		        }
 		        
-		        System.out.println("Current score: " + score);
+		        // Enable the bank score button
 		        BankScoreButton.setEnabled(true);
-		    }
+		    } 
 		});
 
 
@@ -362,6 +336,7 @@ public class GUI_Client extends JFrame {
 		}
 	}
 
+	// Resets components on the board
 	private void resetBoard() {
 		for (int i = 0; i < dice_buttons.size(); i++) {
 			
@@ -410,221 +385,23 @@ public class GUI_Client extends JFrame {
 		}
 	}
 
-	public ArrayList<ArrayList<Integer>> checkDice(ArrayList<Integer> dice_values) {
-		
-		// Creation of valid ArrayLists
-	    ArrayList<ArrayList<Integer>> valid_combinations = new ArrayList<>();
-	    ArrayList<ArrayList<Integer>> valid_triples1 = new ArrayList<>();
-	    ArrayList<ArrayList<Integer>> valid_triples2 = new ArrayList<>();
-	    
-	    // Variables to count1 num of ones and fives
-	    int num_ones = 0;
-	    int num_fives = 0;
-	    
-	    // If all dice are set aside, there can be no valid combinations
-	    if (dice_set_aside.stream().allMatch(b -> b == true)) {
-	        return valid_combinations;
-	    }
-	    
-	    // If all dice are unique, then it is a straight
-	    HashSet<Integer> unique_values = new HashSet<>(dice_values);
-	    if (unique_values.size() == 6) {
-	        ArrayList<Integer> combination = new ArrayList<>(unique_values);
-	        valid_combinations.add(combination);
-	    }
-	    
-	    // Loop through all possible dice values
-	    for (int i = 1; i <= 6; i++) {
-	        int count1 = 0;
-	        int count2 = 0;
-	        
-	        //ArrayLists to hold combinations
-	        ArrayList<Integer> combination1 = new ArrayList<>();
-	        ArrayList<Integer> combination2 = new ArrayList<>();
-	        
-	        // Counts how many dice have the current die value
-	        for (int j = 0; j < dice_values.size(); j++) {
-	            if (dice_values.get(j) == i && !dice_set_aside.get(j)) { // only consider dice that are still in play
-	            	if (count1 < 3) {
-	                    count1++;
-	                    combination1.add(i);
-	                } else {
-	                    count2++;
-	                    combination2.add(i);
-	                }
-	            }
-	        }
-	        
-	        // If there are exactly six dice with the current die value
-	        if (count1 == 6) {
-	            valid_combinations.add(combination1);
-	        }
-	        
-	        // If there are exactly five dice with the current die value
-	        if (count1 == 5) {
-	            valid_combinations.add(combination1);
-	        }
-	        
-	        // If there are exactly three dice with the current die value
-	        if (count1 == 3) {
-	            valid_triples1.add(combination1);
-	        }
-
-	        // If there are exactly three dice with the second die value
-	        if (count2 == 3) {
-	            valid_triples2.add(combination2);
-	        }
-	        
-	        // If there are exactly four dice with the current die value
-	        if (count1 >= 4) {
-	            valid_combinations.add(combination1);
-	        }
-	        
-	        // Count the number of ones in the remaining dice
-	        if (i == 1) {
-	            num_ones = count1;
-	        }
-	        
-	        // Count the number of fives in the remaining dice
-	        else if (i == 5) {
-	            num_fives = count1;
-	        }
-	    }
-	    
-	    // Adds individual instances of dice rolls one and five to the valid combinations
-	    if (num_ones > 0) {
-	        ArrayList<Integer> ones_combination = new ArrayList<>();
-	        for (int i = 0; i < num_ones; i++) {
-	            ones_combination.add(1);
-	        }
-	        valid_combinations.add(ones_combination);
-	    }
-	    
-	    if (num_fives > 0) {
-	        ArrayList<Integer> fives_combination = new ArrayList<>();
-	        for (int i = 0; i < num_fives; i++) {
-	            fives_combination.add(5);
-	        }
-	        valid_combinations.add(fives_combination);
-	    }
-	    
-	    // Tests for four-of-a-kind plus a pair
-	    for (int i = 1; i <= 6; i++) {
-	        int count1 = 0;
-	        ArrayList<Integer> combination1 = new ArrayList<>();
-	        for (int j = 0; j < dice_values.size(); j++) {
-	            if (dice_values.get(j) == i && !dice_set_aside.get(j)) {
-	                count1++;
-	                combination1.add(i);
-	            }
-	        }
-	        if (count1 == 4) {
-	            for (int k = 1; k <= 6; k++) {
-	                if (k != i) {
-	                    int pair_count = 0;
-	                    ArrayList<Integer> pair_combination = new ArrayList<>();
-	                    for (int j = 0; j < dice_values.size(); j++) {
-	                        if (dice_values.get(j) == k && !dice_set_aside.get(j)) {
-	                            pair_count++;
-	                            pair_combination.add(k);
-	                        }
-	                    }
-	                    if (pair_count == 2) {
-	                        combination1.addAll(pair_combination);
-	                        valid_combinations.add(combination1);
-	                        break;
-	                    }
-	                }
-	            }
-	        }
-	    }
-	    
-	    // Combines the the two sets into a single combination
-	    valid_combinations.addAll(valid_triples1);
-	    valid_combinations.addAll(valid_triples2);
-	    
-	    return valid_combinations;
-	}
-	
-	public int scoreCombination(ArrayList<Integer> combination) {
+	// Gets the score of the currently selected dice
+	public static int getScore(ArrayList<Integer> dice) {
 	    int score = 0;
+	    HashMap<Integer, Integer> countMap = new HashMap<>();
+	    for (int die : dice) {
+	        countMap.put(die, countMap.getOrDefault(die, 0) + 1);
+	    }
+	    for (int die : countMap.keySet()) {
+	        int count = countMap.get(die);
 
-	    if (combination.size() == 0) {
-	        return score;
-	    }
-
-	    Collections.sort(combination);
-
-	    // Check for a straight
-	    if (combination.size() == 6 && combination.get(0) == 1 && combination.get(5) == 6 && new HashSet<>(combination).size() == 6) {
-	        score = 1500;
-	    }
-	    // Check for three pairs
-	    else if (combination.size() == 6 && new HashSet<>(combination).size() == 3) {
-	        boolean isThreePairs = true;
-	        for (int i = 0; i < 6; i += 2) {
-	            if (combination.get(i) != combination.get(i + 1)) {
-	                isThreePairs = false;
-	                break;
-	            }
-	        }
-	        if (isThreePairs) {
-	            score = 1500;
+	        
+	        if (die == 1) {
+	            score += count * 100;
+	        } else if (die == 5) {
+	            score += count * 50;
 	        }
 	    }
-	    // Check for two triplets
-	    else if (combination.size() == 6 && new HashSet<>(combination).size() == 2) {
-	        boolean isTwoTriplets = true;
-	        for (int i = 0; i < 6; i += 3) {
-	            if (combination.get(i) != combination.get(i + 1) || combination.get(i + 1) != combination.get(i + 2)) {
-	                isTwoTriplets = false;
-	                break;
-	            }
-	        }
-	        if (isTwoTriplets) {
-	            score = 2500;
-	        }
-	    }
-	    // Check for six-of-a-kind
-	    else if (combination.size() == 6 && new HashSet<>(combination).size() == 1) {
-	        score = 3000;
-	    }
-	    // Check for five-of-a-kind
-	    else if (combination.size() == 5 && new HashSet<>(combination).size() == 1) {
-	        score = 2000;
-	    }
-	    // Check for four-of-a-kind plus a pair
-	    else if (combination.size() == 6 && new HashSet<>(combination).size() == 2) {
-	        int count1 = Collections.frequency(combination, combination.get(0));
-	        int count2 = Collections.frequency(combination, combination.get(3));
-	        if ((count1 == 4 && count2 == 2) || (count1 == 2 && count2 == 4)) {
-	            score = 1500;
-	        }
-	    }
-	    // Check for four-of-a-kind
-	    else if (combination.size() >= 4) {
-	        int count = Collections.frequency(combination, combination.get(0));
-	        if (count >= 4) {
-	            score = 1000;
-	        }
-	    }
-	    // Check for three-of-a-kind
-	    else if (combination.size() == 3) {
-	        int count = Collections.frequency(combination, combination.get(0));
-	        if (count == 3) {
-	            score = combination.get(0) == 1 ? 300 : combination.get(0) * 100;
-	        }
-	    }
-	    // Check for single "1" or "5"
-	    else if (combination.size() == 1) {
-	        int num = combination.get(0);
-	        if (num == 1) {
-	            score = 100;
-	        } else if (num == 5) {
-	            score = 50;
-	        }
-	    }
-
 	    return score;
 	}
 }
