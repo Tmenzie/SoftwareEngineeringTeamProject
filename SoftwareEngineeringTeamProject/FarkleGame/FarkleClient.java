@@ -2,6 +2,7 @@ package FarkleGame;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
 
 import ocsf.client.AbstractClient;
 
@@ -19,6 +20,7 @@ public class FarkleClient extends AbstractClient {
 
 	// Variables
 	private String username;
+	private String opp_username;
 	private int player_number;
 	private int score;
 
@@ -61,6 +63,16 @@ public class FarkleClient extends AbstractClient {
 	// Gets the current player's username
 	public String getUsername() {
 		return this.username;
+	}
+	
+	// Sets the current opponenet's username
+	public void setOppUsername(String opp_username) {
+		this.opp_username = opp_username;
+	}
+	
+	// Gets the current opponent's username
+	public String getOppUsername() {
+		return this.opp_username;
 	}
 
 	// Sets the current player's score
@@ -128,6 +140,11 @@ public class FarkleClient extends AbstractClient {
 				else {
 					client_gui.spectate(player_number);
 				}
+			}
+			
+			// Sets the clien't opponent's username
+			else if (message.startsWith("OppUsername_")) {
+				this.setOppUsername(message.substring(12));
 			}
 		}
 

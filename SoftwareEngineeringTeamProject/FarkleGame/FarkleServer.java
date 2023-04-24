@@ -165,26 +165,45 @@ public class FarkleServer extends AbstractServer {
 						log.append("Telling Client #" + client_ids.get(i) + " to start the game\n");
 						player_number = i + 1;
 						client_connections.get(i).sendToClient("StartGame_" + player_number);
+						client_connections.get(i).sendToClient("OppUsername_" + client_users_connected.get(i));
+						
 						game_started = true;
 					} catch (IOException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 				}
+				// Tells the game to start with player #1
 				sendToAllClients("PlayerTurn_1");
 			}
 		}
 
-		// Checks to see if user selects to logout
+		// Checks if object sent is JButton
 		else if (arg0 instanceof JButton) {
 			JButton button = (JButton) arg0;
 
+			// Checks to see if user selects to logout
 			if (button.getText().equals("Logout")) {
 				try {
 					arg1.sendToClient("Disconnect");
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
+				}
+			}
+		}
+		
+		// Checks if object sent is String
+		else if (arg0 instanceof String) {
+			String message = (String) arg0;
+			
+			// If message is bank score, then get the player who banked and set the current turn to the next player
+			if (message.startsWith("BankScore_")) {
+				for (int i = 0; i < client_users_connected.size(); i++) {
+					if (!message.substring(10).equals(Integer.toString(i + 1))) {
+						sendToAllClients("PlayerTurn_" + (i + 1));
+						log.append("Telling clients it is now Client #" + arg1.getId() + "'s turn\n");
+					}
 				}
 			}
 		}
@@ -230,7 +249,7 @@ public class FarkleServer extends AbstractServer {
 
 	public void clientException(ConnectionToClient client, Throwable exception) {
 		// Displays when a client unexpectedly disconnects
-		log.append("Client " + client.getId() + " unexpectedly disconnected" + "\n");
+		log.append("Client " + client.getId() + " severed connection to server" + "\n");
 
 		// Removes the client that was disconnected from the arrays
 		client_connections.remove(client);
