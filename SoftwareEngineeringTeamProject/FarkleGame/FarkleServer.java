@@ -14,7 +14,7 @@ import ocsf.server.ConnectionToClient;
 public class FarkleServer extends AbstractServer {
 
 	// Final Variables
-	final int WINNING_SCORE = 3000;		// The score required to win
+	final int WINNING_SCORE = 2500;		// The score required to win
 	
 	// Objects
 	private Database database;
@@ -89,6 +89,15 @@ public class FarkleServer extends AbstractServer {
 								+ "\") is waiting for more players to connect\n");
 					} else {
 						log.append("All players have connected\n");
+						
+						for (int i = 0; i < client_connections.size(); i++) {
+							try {
+								client_connections.get(i).sendToClient("StartGame_" + (i + 1));
+							} catch (IOException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+						}
 					}
 				}
 

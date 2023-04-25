@@ -1,7 +1,6 @@
 package FarkleGame;
 
 import java.io.IOException;
-
 import ocsf.client.AbstractClient;
 
 //Author: 			Shandon Probst
@@ -48,7 +47,7 @@ public class FarkleClient extends AbstractClient {
 
 	// Prints to console when connection is established
 	public void connectionEstablished() {
-		System.out.println("Connected successfully");
+		client_gui.login(client_gui);
 	}
 
 	// Prints to console when connection is closed
@@ -142,7 +141,6 @@ public class FarkleClient extends AbstractClient {
 			// Tells the client the game is starting
 			else if (message.startsWith("StartGame_")) {
 				this.player_number = Integer.parseInt(message.substring(10));
-				System.out.println("I am player #" + player_number);
 				setNumber(player_number);
 				
 				if (player_number == 1) {
@@ -164,7 +162,7 @@ public class FarkleClient extends AbstractClient {
 			else if (message.startsWith("Winner_")) {
 				int winner_number = Integer.parseInt(message.substring(7));
 				if (player_number == winner_number) {
-					client_gui.userLost();
+					client_gui.userWon();
 				}
 				else {
 					client_gui.userLost();
@@ -229,31 +227,7 @@ public class FarkleClient extends AbstractClient {
 	// Main driver
 	public static void main(String[] args) {
 
-		// Creation of Farkle client object
 		FarkleClient client = new FarkleClient();
-
-		// Client establishes connection with localhost:8300
-		client.setHost("localhost");
-		client.setPort(8300);
-
-		// Attempts connect to the server using host and port info
-		try {
-			client.openConnection();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			//e.printStackTrace();
-		}
-		
-		if (client.isConnected()) {
-			// Creation of Farkle GUI for client
-			GUI_Client client_gui = new GUI_Client(client);
-
-			// Tells the client GUI to start the login process
-			// The rest of the processes from here are handled by other classes/methods
-			client_gui.login(client_gui);
-		}
-		else {
-			System.err.println("Could not connect to server at localhost:8300");
-		}
+		new GUI_Client(client);
 	}
 }

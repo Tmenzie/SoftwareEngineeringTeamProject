@@ -53,6 +53,8 @@ public class GUI_Client extends JFrame {
 	public GUI_Client(FarkleClient client) {
 		this.client = client;
 		client.setGUI(this);
+		
+		connectToServer();
 	}
 
 	// Returns the login frame
@@ -65,6 +67,46 @@ public class GUI_Client extends JFrame {
 		return this.FarkleGameFrame;
 	}
 
+	// Connect method
+	public void connectToServer() {
+	    JFrame connectFrame = new JFrame("Connect to Server");
+	    connectFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+	    connectFrame.setSize(300, 150);
+	    connectFrame.setLocationRelativeTo(null);
+	    
+	    JLabel ipLabel = new JLabel("Enter server IP address:");
+	    JTextField ipField = new JTextField(15);
+	    
+	    JButton connectButton = new JButton("Connect");
+	    connectButton.addActionListener(new ActionListener() {
+	        @Override
+	        public void actionPerformed(ActionEvent e) {
+	            String ip = ipField.getText();
+	            client.setHost(ip);
+	            client.setPort(8300);
+	            
+	            try {
+	                client.openConnection();
+	            } catch (IOException e1) {
+	                // TODO Auto-generated catch block
+	                //e1.printStackTrace();
+	            }
+	            
+	            if (client.isConnected()) {
+	                connectFrame.dispose();
+	            }
+	        }
+	    });
+	    
+	    JPanel connectPanel = new JPanel();
+	    connectPanel.add(ipLabel);
+	    connectPanel.add(ipField);
+	    connectPanel.add(connectButton);
+	    connectFrame.add(connectPanel);
+	    
+	    connectFrame.setVisible(true);
+	}
+	
 	// Login method
 	public void login(GUI_Client gui) {
 		LoginFrame = new JFrame();
@@ -72,6 +114,7 @@ public class GUI_Client extends JFrame {
 		// Set the title, default close operation, and resizable as false.
 		LoginFrame.setTitle("Farkle Client Login");
 		LoginFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		LoginFrame.setLocationRelativeTo(null);
 
 		// Create the card layout container.
 		CardLayout cardLayout = new CardLayout();
@@ -118,6 +161,7 @@ public class GUI_Client extends JFrame {
 		FarkleGameFrame.setSize(1000, 500);
 		FarkleGameFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		FarkleGameFrame.setResizable(false);
+		FarkleGameFrame.setLocationRelativeTo(null);
 
 		ImageIcon game_icon = new ImageIcon("/GUI/game_icon.jpg");
 		FarkleGameFrame.setIconImage(game_icon.getImage());
@@ -424,14 +468,12 @@ public class GUI_Client extends JFrame {
 	}
 	
 	public void userLost() {
-		Icon icon = new ImageIcon("GUI/die.png");
-		JOptionPane.showMessageDialog(FarkleGameFrame, "Better luck next time!.", "Game Results", JOptionPane.INFORMATION_MESSAGE, icon);
+		JOptionPane.showMessageDialog(FarkleGameFrame, "Better luck next time!.", "Game Results", JOptionPane.INFORMATION_MESSAGE);
 		System.exit(0);
 	}
 	
 	public void userWon() {
-		Icon icon = new ImageIcon("GUI/die.png");
-		JOptionPane.showMessageDialog(FarkleGameFrame, "You won!!! Looks like luck was on your side!", "Game Results", JOptionPane.INFORMATION_MESSAGE, icon);
+		JOptionPane.showMessageDialog(FarkleGameFrame, "You won!!! Looks like luck was on your side!", "Game Results", JOptionPane.INFORMATION_MESSAGE);
 		System.exit(0);
 	}
 
@@ -545,6 +587,7 @@ public class GUI_Client extends JFrame {
 	    // Check for farkle
 	    if (!(hasOne || hasFive)) {
 	    	game_label.setText("You farkled!!!");
+	    	warning_label.setText("");
 	        
 	        // Sends to the server the player who farkled
 	        try {
