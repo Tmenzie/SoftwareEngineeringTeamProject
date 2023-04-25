@@ -2,11 +2,11 @@ package FarkleGame;
 
 import java.awt.*;
 import javax.swing.*;
-import java.awt.event.*;
 
 //Author: 			Shandon Probst
 //Description:		
 
+@SuppressWarnings("serial")
 public class LoginPanel extends JPanel
 {
   // Private data fields for the important GUI components.

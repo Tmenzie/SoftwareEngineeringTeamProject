@@ -5,6 +5,7 @@ import java.io.Serializable;
 //Author: 			Shandon Probst
 //Description:		
 
+@SuppressWarnings("serial")
 public class LoginData implements Serializable
 {
   // Private data fields for the username and password.

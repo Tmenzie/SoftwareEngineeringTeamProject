@@ -1,415 +1,622 @@
 package FarkleGame;
 
-// Author: Tyler Menzie
-// Objective: Farkle Game GUI
-
-
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
 import java.io.IOException;
 import java.util.Random;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JTextArea;
-import javax.swing.JTextPane;
-import javax.swing.JPanel;
-import java.awt.Color;
-import java.awt.BorderLayout;
-import java.awt.CardLayout;
-import java.awt.FlowLayout;
+import java.util.ArrayList;
+import java.util.HashMap;
 
-public class GUI_Client extends JFrame{
-	
+//Author: 			Tyler Menzie
+//Description: 		Farkle Game GUI
+
+@SuppressWarnings("serial")
+public class GUI_Client extends JFrame {
+
 	// Client object
 	private FarkleClient client;
-	
+
 	// JFrames and JPanels
+	private JFrame LoginFrame;
 	private JFrame FarkleGameFrame;
+
+	// JButtons
+	private JButton BankScoreButton;
+	private JButton SetAsideButton;
+	private JButton RollDiceButton;
 	
-	// Booleans for die
-	private boolean Dice1isSelected;
-	private boolean Dice2isSelected;
-	private boolean Dice3isSelected;
-	private boolean Dice4isSelected;
-	private boolean Dice5isSelected;
-	private boolean Dice6isSelected;
+	// JLabels
+	private JLabel player_label;
+	private JLabel warning_label;
+	private JLabel game_label;
+	private JLabel scoreboard_label;
+	
+	// ArrayLists
+	private ArrayList<JButton> dice_buttons; 				// Stores the JToggleButtons associated with the dice
+	private ArrayList<Boolean> dice_set_aside; 				// Stores the JButtons associated with the dice that are to be
+															// set aside
+	private ArrayList<Boolean> dice_selected; 				// Stores the boolean values associated with the dice. True if selected
+	private ArrayList<Integer> dice_values;
+	private ArrayList<Integer> selected_dice;
+	
+	private ArrayList<JLabel> player_username_labels;
+	private ArrayList<JLabel> player_score_labels;
+
+	// Variables
+	private int score;
+	private int round_score;
+	private int potential_bank;
+	private int player_number;
 
 	// Constructor
 	public GUI_Client(FarkleClient client) {
 		this.client = client;
-	}
-	
-	public void login(GUI_Client gui) {
-		System.out.println("Entered login");
-		client.setHost("localhost");
-		client.setPort(8300);
+		client.setGUI(this);
 		
-		try {
-			client.openConnection();
-		} 
-		catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	    
-	    // Set the title and default close operation.
-	    this.setTitle("Farkle Client Login");
-	    this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-	        
-	    // Create the card layout container.
-	    CardLayout cardLayout = new CardLayout();
-	    JPanel container = new JPanel(cardLayout);
-	    
-	    //Create the Controllers next
-	    //Next, create the Controllers
-	    InitialControl ic = new InitialControl(container); 
-	    LoginControl lc = new LoginControl(container, client, this, gui);
-	    CreateAccountControl cac = new CreateAccountControl(container, client, this, gui);
-	    
-	    // Set client info
-	    client.setLoginControl(lc);
-	    client.setCreateAccountControl(cac);
-	    
-	    // Create the four views. (need the controller to register with the Panels
-	    JPanel view1 = new InitialPanel(ic);
-	    JPanel view2 = new LoginPanel(lc);
-	    JPanel view3 = new CreateAccountPanel(cac);
-	    
-	    // Add the views to the card layout container.
-	    container.add(view1, "1");
-	    container.add(view2, "2");
-	    container.add(view3, "3");
-	    
-	    // Show the initial view in the card layout.
-	    cardLayout.show(container, "1");
-	    
-	    // Add the card layout container to the JFrame.
-	    this.add(container, BorderLayout.CENTER);
+		connectToServer();
+	}
 
-	    // Show the JFrame.
-	    this.setSize(550, 350);
-	    this.setVisible(true);
+	// Returns the login frame
+	public JFrame getLoginFrame() {
+		return this.LoginFrame;
+	}
+
+	// Returns the game frame
+	public JFrame getFarkleGameFrame() {
+		return this.FarkleGameFrame;
+	}
+
+	// Connect method
+	public void connectToServer() {
+	    JFrame connectFrame = new JFrame("Connect to Server");
+	    connectFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+	    connectFrame.setSize(300, 150);
+	    connectFrame.setLocationRelativeTo(null);
+	    
+	    JLabel ipLabel = new JLabel("Enter server IP address:");
+	    JTextField ipField = new JTextField(15);
+	    
+	    JButton connectButton = new JButton("Connect");
+	    connectButton.addActionListener(new ActionListener() {
+	        @Override
+	        public void actionPerformed(ActionEvent e) {
+	            String ip = ipField.getText();
+	            client.setHost(ip);
+	            client.setPort(8300);
+	            
+	            try {
+	                client.openConnection();
+	            } catch (IOException e1) {
+	                // TODO Auto-generated catch block
+	                //e1.printStackTrace();
+	            }
+	            
+	            if (client.isConnected()) {
+	                connectFrame.dispose();
+	            }
+	        }
+	    });
+	    
+	    JPanel connectPanel = new JPanel();
+	    connectPanel.add(ipLabel);
+	    connectPanel.add(ipField);
+	    connectPanel.add(connectButton);
+	    connectFrame.add(connectPanel);
+	    
+	    connectFrame.setVisible(true);
 	}
 	
-	// Initialize the contents of the frame.
-	public void initialize() {
-		
+	// Login method
+	public void login(GUI_Client gui) {
+		LoginFrame = new JFrame();
+
+		// Set the title, default close operation, and resizable as false.
+		LoginFrame.setTitle("Farkle Client Login");
+		LoginFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		LoginFrame.setLocationRelativeTo(null);
+
+		// Create the card layout container.
+		CardLayout cardLayout = new CardLayout();
+		JPanel container = new JPanel(cardLayout);
+
+		// Create the Controllers next
+		// Next, create the Controllers
+		InitialControl ic = new InitialControl(container);
+		LoginControl lc = new LoginControl(container, client, LoginFrame, gui);
+		CreateAccountControl cac = new CreateAccountControl(container, client);
+
+		// Set client info
+		client.setLoginControl(lc);
+		client.setCreateAccountControl(cac);
+
+		// Create the four views. (need the controller to register with the Panels
+		JPanel view1 = new InitialPanel(ic);
+		JPanel view2 = new LoginPanel(lc);
+		JPanel view3 = new CreateAccountPanel(cac);
+
+		// Add the views to the card layout container.
+		container.add(view1, "1");
+		container.add(view2, "2");
+		container.add(view3, "3");
+
+		// Show the initial view in the card layout.
+		cardLayout.show(container, "1");
+
+		// Add the card layout container to the JFrame.
+		LoginFrame.add(container, BorderLayout.CENTER);
+
+		// Show the JFrame.
+		LoginFrame.setSize(550, 350);
+		LoginFrame.setVisible(true);
+	}
+
+	// Initialize the contents of the frame
+	public void initialize(String username) {
+
 		// Start of the Farkle Game Frame
 		FarkleGameFrame = new JFrame();
-		FarkleGameFrame.setTitle("Farkle Client");
-		FarkleGameFrame.setBounds(100, 100, 686, 471);
-		FarkleGameFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		FarkleGameFrame.setTitle("Farkle Client - Playing as \"" + username + "\"");
 		FarkleGameFrame.getContentPane().setLayout(null);
+		FarkleGameFrame.setSize(1000, 500);
+		FarkleGameFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		FarkleGameFrame.setResizable(false);
+		FarkleGameFrame.setLocationRelativeTo(null);
+
+		ImageIcon game_icon = new ImageIcon("/GUI/game_icon.jpg");
+		FarkleGameFrame.setIconImage(game_icon.getImage());
+
+		// Initialize score
+		score = 0;
+
+		// Creation of buttons
+		SetAsideButton = new JButton("Set Aside");
+		RollDiceButton = new JButton("Roll Dice");
+		BankScoreButton = new JButton("Bank Score");
 		
-		ImageIcon img = new ImageIcon("/GUI/DiceIcon.png");
-		FarkleGameFrame.setIconImage(img.getImage());
-	
-		// Hard Coded Random Number Generator
-		// Stores 6 Random Numbers into an array of int
-		// Selected Die that are moved into "Set Aside" the  number of dice that are set aside should be subtracted from NumofDie 
-		int NumofDie = 6;
-		Random random = new Random();
-		int[] arr = new int[NumofDie];
+		// Creation of JLabels
+		player_label = new JLabel("Waiting for other player to join");
+		warning_label = new JLabel();
+		game_label = new JLabel();
+		scoreboard_label = new JLabel("Scoreboard");
 		
-		for(int i = 0; i <arr.length; i++)
-		{
-			arr[i] = 1 + random.nextInt(7 - 1);
+		// Username labels
+		JLabel user1 = new JLabel();
+		JLabel user2 = new JLabel();
 		
-			System.out.println(arr[i]);
-		}
+		JLabel score1 = new JLabel("0");
+		JLabel score2 = new JLabel("0");
+
+		// Initialize ArrayLists
+		dice_selected = new ArrayList<Boolean>();
+		dice_values = new ArrayList<Integer>();
+		dice_set_aside = new ArrayList<Boolean>();
+		selected_dice = new ArrayList<Integer>();
+		player_username_labels = new ArrayList<JLabel>();
+		player_score_labels = new ArrayList<JLabel>();
 		
-		// Sets Each random number to a Dice, then Allocates that number into the JPG of the Image File
-		String Dice1 = "/GUI/" + arr[0] + "_dice.jpg";
-		String Dice2 = "/GUI/" + arr[1] + "_dice.jpg";
-		String Dice3 = "/GUI/" + arr[2] + "_dice.jpg";
-		String Dice4 = "/GUI/" + arr[3] + "_dice.jpg";
-		String Dice5 = "/GUI/" + arr[4] + "_dice.jpg";
-		String Dice6 = "/GUI/" + arr[5] + "_dice.jpg";
+		// Creation of dice buttons
+		dice_buttons = new ArrayList<JButton>();
 		
-		// Area where the 6th Dice will be displayed
-		JLabel DiceAreaPic6 = new JLabel("");
-		DiceAreaPic6.setIcon(new ImageIcon(GUI_Client.class.getResource(Dice6)));
-		DiceAreaPic6.setBounds(501, 309, 55, 51);
-		FarkleGameFrame.getContentPane().add(DiceAreaPic6);
-		
-		// Red Indicator that shows Dice 6 is Selected to be Set Aside
-		JPanel Dice6SelectionIndicator = new JPanel();
-		Dice6SelectionIndicator.setBackground(new Color(255, 0, 0));
-		Dice6SelectionIndicator.setBounds(497, 305, 62, 58);
-		FarkleGameFrame.getContentPane().add(Dice6SelectionIndicator);
-		Dice6SelectionIndicator.setVisible(false);
-		
-		// Listener for mouse click on Dice area 6
-		DiceAreaPic6.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                if (Dice6isSelected) {
-                	//DiceAreaPic1.setForeground(Color.BLACK);
-                	Dice6isSelected = false;
-                	Dice6SelectionIndicator.setVisible(Dice6isSelected);
-                    System.out.println("Dice 6 Un-Selected");
-                } else {
-                   // label.setForeground(Color.RED);
-                	Dice6isSelected = true;
-                	Dice6SelectionIndicator.setVisible(Dice6isSelected);
-                    System.out.println("Dice 6 Selected");
-                }
-            }
-        });
-		
-		// Area where the 5th Dice will be displayed
-		JLabel DiceAreaPic5 = new JLabel("");		
-		DiceAreaPic5.setIcon(new ImageIcon(GUI_Client.class.getResource(Dice5)));
-		DiceAreaPic5.setBounds(424, 309, 55, 51);
-		FarkleGameFrame.getContentPane().add(DiceAreaPic5);
-		
-		// Red Indicator that shows Dice 5 is Selected to be Set Aside
-		JPanel Dice5SelectionIndicator = new JPanel();
-		Dice5SelectionIndicator.setBackground(Color.RED);
-		Dice5SelectionIndicator.setBounds(420, 305, 62, 58);
-		FarkleGameFrame.getContentPane().add(Dice5SelectionIndicator);
-		Dice5SelectionIndicator.setVisible(false);
-		
-		// Listener for mouse click on Dice area 5
-		DiceAreaPic5.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                if (Dice5isSelected) {
-                	//DiceAreaPic1.setForeground(Color.BLACK);
-                	Dice5isSelected = false;
-                	Dice5SelectionIndicator.setVisible(Dice5isSelected);
-                    System.out.println("Dice 5 Un-Selected");
-                } else {
-                   // label.setForeground(Color.RED);
-                	Dice5isSelected = true;
-                	Dice5SelectionIndicator.setVisible(Dice5isSelected);
-                    System.out.println("Dice 5 Selected");
-                }
-            }
-        });
-		// Area where the 4th Dice will be displayed
-		JLabel DiceAreaPic4 = new JLabel("");		
-		DiceAreaPic4.setIcon(new ImageIcon(GUI_Client.class.getResource(Dice4)));
-		DiceAreaPic4.setBounds(341, 309, 55, 51);
-		FarkleGameFrame.getContentPane().add(DiceAreaPic4);
-		
-		// Red Indicator that shows Dice 4 is Selected to be Set Aside
-		JPanel Dice4SelectionIndicator = new JPanel();
-		Dice4SelectionIndicator.setBackground(Color.RED);
-		Dice4SelectionIndicator.setBounds(337, 305, 62, 58);
-		FarkleGameFrame.getContentPane().add(Dice4SelectionIndicator);
-		Dice4SelectionIndicator.setVisible(false);
-		
-		// Listener for mouse click on Dice area 4
-		DiceAreaPic4.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                if (Dice4isSelected) {
-                	//DiceAreaPic1.setForeground(Color.BLACK);
-                	Dice4isSelected = false;
-                	Dice4SelectionIndicator.setVisible(Dice4isSelected);
-                    System.out.println("Dice 4 Un-Selected");
-                } else {
-                   // label.setForeground(Color.RED);
-                	Dice4isSelected = true;
-                	Dice4SelectionIndicator.setVisible(Dice4isSelected);
-                    System.out.println("Dice 4 Selected");
-                }
-            }
-        });
-		
-		// Area where the 3rd Dice will be displayed
-		JLabel DiceAreaPic3 = new JLabel("");
-		DiceAreaPic3.setIcon(new ImageIcon(GUI_Client.class.getResource(Dice3)));
-		DiceAreaPic3.setBounds(262, 309, 55, 51);
-		FarkleGameFrame.getContentPane().add(DiceAreaPic3);
-		
-		// Red Indicator that shows Dice 3 is Selected to be Set Aside
-		JPanel Dice3SelectionIndicator = new JPanel();
-		Dice3SelectionIndicator.setBackground(Color.RED);
-		Dice3SelectionIndicator.setBounds(258, 305, 62, 58);
-		FarkleGameFrame.getContentPane().add(Dice3SelectionIndicator);
-		Dice3SelectionIndicator.setVisible(false);
-		
-		// Listener for mouse click on Dice area 3
-		DiceAreaPic3.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                if (Dice3isSelected) {
-                	//DiceAreaPic1.setForeground(Color.BLACK);
-                	Dice3isSelected = false;
-                	Dice3SelectionIndicator.setVisible(Dice3isSelected);
-                    System.out.println("Dice 3 Un-Selected");
-                } else {
-                   // label.setForeground(Color.RED);
-                	Dice3isSelected = true;
-                	Dice3SelectionIndicator.setVisible(Dice3isSelected);
-                    System.out.println("Dice 3 Selected");
-                }
-            }
-        });
-		
-		// Area where the 2nd Dice will be displayed
-		JLabel DiceAreaPic2 = new JLabel("");		
-		DiceAreaPic2.setIcon(new ImageIcon(GUI_Client.class.getResource(Dice2)));
-		DiceAreaPic2.setBounds(184, 309, 55, 51);
-		FarkleGameFrame.getContentPane().add(DiceAreaPic2);
-		
-		// Red Indicator that shows Dice 2 is Selected to be Set Aside
-		JPanel Dice2SelectionIndicator = new JPanel();
-		Dice2SelectionIndicator.setBackground(Color.RED);
-		Dice2SelectionIndicator.setBounds(180, 306, 62, 58);
-		FarkleGameFrame.getContentPane().add(Dice2SelectionIndicator);
-		Dice2SelectionIndicator.setVisible(false);
-		
-		// Listener for mouse click on Dice area 2
-		DiceAreaPic2.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                if (Dice2isSelected) {
-                	//DiceAreaPic1.setForeground(Color.BLACK);
-                	Dice2isSelected = false;
-                	Dice2SelectionIndicator.setVisible(Dice2isSelected);
-                    System.out.println("Dice 2 Un-Selected");
-                } else {
-                   // label.setForeground(Color.RED);
-                	Dice2isSelected = true;
-                	Dice2SelectionIndicator.setVisible(Dice2isSelected);
-                    System.out.println("Dice 2 Selected");
-                }
-            }
-        });
-	
-		// Area where the 1st Dice will be displayed
-		JLabel DiceAreaPic1 = new JLabel("");		
-		DiceAreaPic1.setIcon(new ImageIcon(GUI_Client.class.getResource(Dice1)));
-		DiceAreaPic1.setBounds(101, 309, 55, 51);
-		FarkleGameFrame.getContentPane().add(DiceAreaPic1);
-		
-		// Red Indicator that shows Dice 1 is Selected to be Set Aside
-		JPanel Dice1SelectionIndicator = new JPanel();
-		Dice1SelectionIndicator.setBackground(Color.RED);
-		Dice1SelectionIndicator.setBounds(97, 305, 62, 58);
-		FarkleGameFrame.getContentPane().add(Dice1SelectionIndicator);
-		Dice1SelectionIndicator.setVisible(false);
-		
-		// Listener for mouse click on Dice area 1
-		DiceAreaPic1.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                if (Dice1isSelected) {
-                	//DiceAreaPic1.setForeground(Color.BLACK);
-                	Dice1isSelected = false;
-                	Dice1SelectionIndicator.setVisible(Dice1isSelected);
-                    System.out.println("Dice 1 Un-Selected");
-                } else {
-                   // label.setForeground(Color.RED);
-                	Dice1isSelected = true;
-                	Dice1SelectionIndicator.setVisible(Dice1isSelected);
-                    System.out.println("Dice 1 Selected");
-                }
-            }
-        });
-	
-		// Sets the background of the Farkle game frame
-		JLabel FarkleGamePicture = new JLabel("");
-		FarkleGamePicture.setIcon(new ImageIcon(GUI_Client.class.getResource("/GUI/Farkle_TeamProject Game GUI.jpg")));
-		FarkleGamePicture.setBounds(0, 0, 670, 432);
-		FarkleGameFrame.getContentPane().add(FarkleGamePicture);
-		
-		// Button to Set Aside selected dice
-		JButton SetAsideButton = new JButton("");
-		SetAsideButton.setEnabled(false);
-		
-		// Button Listener to register when Set Aside Button is clicked by the mouse
-		SetAsideButton.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				System.out.print("Set Aside Button Pressed\n");
-			}
-		});
-		SetAsideButton.setBounds(120, 385, 89, 36);
-		FarkleGameFrame.getContentPane().add(SetAsideButton);
-		
-		// Button to Roll Dice 
-		JButton RollDiceButton = new JButton("");
-		RollDiceButton.setEnabled(false);
-		RollDiceButton.addMouseListener(new MouseAdapter() {
+		// Creates all of the buttons and maps action listeners to them
+		for (int i = 0; i < 6; i++) {
+			// Creation of individual button
+			JButton button = new JButton("");
+			dice_buttons.add(button);
 			
-			// Button Listener to register when Roll Dice Button is clicked by the mouse
-			// In-Game should reload frame, with changed NumofDie and selected dice moved into Set Aside if applicable
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				
-				System.out.print("Roll Dice Pressed\n");
-			}
-		});
-		RollDiceButton.setBounds(309, 385, 97, 36);
-		FarkleGameFrame.getContentPane().add(RollDiceButton);
-		
-		// Button to Bank score on dice that are Set Aside
-		JButton BankScoreButton = new JButton("");
+			// All dice are initialized as not selected
+			dice_selected.add(false);
+			dice_set_aside.add(false);
+
+			// Add button to panel
+			button.setBounds((90 + ((i + 1) * 65)), 315, 53, 49);
+			FarkleGameFrame.getContentPane().add(button);
+
+			// Disables button and hides them
+			button.setEnabled(false);
+			button.setVisible(false);
+
+			// Adds action listeners to each button
+			button.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+
+					// Checks if button is in dice_buttons. Moves over to set_aside_buttons if
+					// selected
+					
+					for (int j = 0; j < dice_buttons.size(); j++) { 
+						if (dice_selected.get(j).equals(false) && j == dice_buttons.indexOf(button)) {
+							// Show button in new location
+							button.setBounds((90 + ((dice_buttons.indexOf(button) + 1) * 65)), 255, 53, 49);
+							
+							// Set selected as true
+							dice_selected.set(j, true);
+						}
+						
+						// Checks if button is in set_aside_buttons. Moves over to dice_buttons if
+						// selected
+						else if (dice_selected.get(j).equals(true) && j == dice_buttons.indexOf(button)) {
+						    // Sets bounds
+						    button.setBounds((90 + ((dice_buttons.indexOf(button) + 1) * 65)), 315, 53, 49);
+
+						    // Set selected as false
+						    dice_selected.set(j, false);
+						}
+					}
+				}
+			});
+		}
+
+		// Disabling buttons
+		SetAsideButton.setEnabled(false);
+		RollDiceButton.setEnabled(false);
 		BankScoreButton.setEnabled(false);
-		BankScoreButton.addMouseListener(new MouseAdapter() {
-			// Button Listener to register when Bank Score Button is clicked by the mouse
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				System.out.print("Bank Score Pressed\n");
-			}
-		});
-		BankScoreButton.setBounds(471, 385, 89, 36);
+
+		// Setting JButton bounds
+		SetAsideButton.setBounds(155, 385, 100, 40);
+		RollDiceButton.setBounds(295, 385, 100, 40);
+		BankScoreButton.setBounds(435, 385, 100, 40);
+		
+		// Setting JLabel bounds and alignment
+		player_label.setBounds(245, 10, 200, 15);
+		warning_label.setBounds(245, 35, 200, 15);
+		game_label.setBounds(245, 55, 200, 15);
+		scoreboard_label.setBounds(650, 10, 100, 15);
+		
+		player_label.setHorizontalAlignment(SwingConstants.CENTER);
+		warning_label.setHorizontalAlignment(SwingConstants.CENTER);
+		game_label.setHorizontalAlignment(SwingConstants.CENTER);
+		scoreboard_label.setHorizontalAlignment(SwingConstants.CENTER);
+		
+		// Adding buttons to frame
+		FarkleGameFrame.getContentPane().add(SetAsideButton);
+		FarkleGameFrame.getContentPane().add(RollDiceButton);
 		FarkleGameFrame.getContentPane().add(BankScoreButton);
 		
-		// Button to LogOut of game
-		JButton LogOutButton = new JButton("");
-		LogOutButton.setEnabled(false);
-		LogOutButton.addMouseListener(new MouseAdapter() {
-			// Button Listener to register when Log Out Button is clicked by the mouse
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				System.out.print("Logout Button Pressed\n");
+		// Adding JLabels to frame
+		FarkleGameFrame.getContentPane().add(player_label);
+		FarkleGameFrame.getContentPane().add(warning_label);
+		FarkleGameFrame.getContentPane().add(game_label);
+		FarkleGameFrame.getContentPane().add(scoreboard_label);
+
+		FarkleGameFrame.getContentPane().add(user1);
+		FarkleGameFrame.getContentPane().add(user2);
+		FarkleGameFrame.getContentPane().add(score1);
+		FarkleGameFrame.getContentPane().add(score2);
+		
+		// Adding JLabels to ArrayList
+		player_username_labels.add(user1);
+		player_username_labels.add(user2);
+		player_score_labels.add(score1);
+		player_score_labels.add(score2);
+
+		// Button Listener to register when bank score button is submitted
+		BankScoreButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				game_label.setText("You banked " + potential_bank + " points!!!");
+				score += potential_bank;
+				
+				try {
+					client.sendToServer("BankScore_" + player_number + "_" + score);
+					client.setScore(score);
+					updateMyScoreLabel();
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 			}
 		});
-		LogOutButton.setBounds(571, 23, 89, 31);
-		FarkleGameFrame.getContentPane().add(LogOutButton);
+
+		SetAsideButton.addActionListener(new ActionListener() {
+		    public void actionPerformed(ActionEvent e) {
+		        
+		    	// Clears warning message
+		    	warning_label.setText("");
+		    	
+		    	// Checks if any selection was made
+		    	if (dice_selected.contains(true)) {
+		    		
+		    		// Get list of selected dice values
+			        for (int i = 0; i < dice_buttons.size(); i++) {
+			            if (dice_selected.get(i).equals(true)) {
+			                selected_dice.add(dice_values.get(i));
+			            }
+			        }
+			        
+			        if (selected_dice.contains(4) || selected_dice.contains(3) || selected_dice.contains(2) || selected_dice.contains(6)) {
+			        	warning_label.setText("Invalid selection!");
+			        }
+			        
+			        else {
+			        	// Verify and score the selected dice
+				        round_score = getScore(selected_dice);
+				        potential_bank += round_score;
+				        
+				        game_label.setText("Potential bank: " + potential_bank);
+				        
+				        int pos_helper = -15;
+				        
+				        // Loop through and disable dice buttons that were selected and move them
+				        for (int i = 0; i < dice_buttons.size(); i++) {
+				        	pos_helper += 55;
+				            if (dice_selected.get(i).equals(true)) {
+				                dice_selected.set(i, false);
+				                dice_set_aside.set(i, true);
+				                dice_buttons.get(i).setEnabled(false);
+				                dice_buttons.get(i).setBounds(35 , pos_helper, 53, 49);
+				            }
+				        }
+				        
+				        // Enable the bank score and roll button
+				        BankScoreButton.setEnabled(true);
+				        RollDiceButton.setEnabled(true);
+			        }
+			        
+			        // Clear the list of selected dice
+			        selected_dice.clear();     
+		    	}
+		    	
+		    	// If no selection was made, tell the user
+		    	else {
+		    		warning_label.setText("No dice selected!");
+		    	}
+		    } 
+		});
+
+
+		// Button Listener to register when roll dice button is submitted
+		RollDiceButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				for (int i = 0; i < dice_buttons.size(); i++) {
+					if (dice_set_aside.get(i) == false && dice_selected.get(i) == true) {
+						dice_buttons.get(i).setBounds((90 + ((dice_buttons.indexOf(dice_buttons.get(i)) + 1) * 65)), 315, 53, 49);
+						dice_selected.set(i, false);
+					}
+				}
+				
+				roll();
+				RollDiceButton.setEnabled(false);
+			}
+		});
 		
-		// Area to take in the Player1 Name received 
-		// by the player1client and display name
-		JTextArea Player1ScoreNameArea = new JTextArea();
-		Player1ScoreNameArea.setEditable(false);
-		Player1ScoreNameArea.setBounds(10, 100, 64, 22);
-		FarkleGameFrame.getContentPane().add(Player1ScoreNameArea);
-		
-		// Area to take in the Player2 Name received 
-		// by the player2client and display name
-		JTextArea Player2ScoreNameArea = new JTextArea();
-		Player2ScoreNameArea.setEditable(false);
-		Player2ScoreNameArea.setBounds(10, 127, 64, 22);
-		FarkleGameFrame.getContentPane().add(Player2ScoreNameArea);
-		
+		// Sets the frame as visible
 		FarkleGameFrame.setVisible(true);
-	}	
+	}
 	
-	private int[] GetDice() {
-		// What we will use for the display of the Dice, then is surrounded by a button to be able to be selected to move to the bank
-		// Take in the Random number generator score and allocate that same die .png location
-		int NumofDie = 6;
-		Random random = new Random();
-		int[] arr = new int[NumofDie];
+	// Sets the player labels once the game starts
+	public void setMyLabel() {
+		// Username Label
+		player_username_labels.get(client.getNumber() - 1).setText("Player #" + client.getNumber() + " - " + client.getUsername() + ": ");
+		player_username_labels.get(client.getNumber() - 1).setBounds(630, ((28 * client.getNumber())), 250, 20);
+		player_username_labels.get(client.getNumber() - 1).setHorizontalAlignment(SwingConstants.LEFT);
 		
-		for(int i = 0; i <arr.length; i++) {
-			arr[i] = 1 + random.nextInt(7 - 1);
+		// Opponent's score label
+		player_score_labels.get(client.getNumber() - 1).setBounds(770, ((28 * client.getNumber())), 250, 20);
+		player_score_labels.get(client.getNumber() - 1).setHorizontalAlignment(SwingConstants.LEFT);
+	}
+	
+	// Sets the opponent's label once the game starts
+	public void setOpponentLabel() {
+		// Opponent's username label
+		player_username_labels.get(client.getOppNumber() - 1).setText("Player #" + client.getOppNumber() + " - " + client.getOppUsername() + ": ");
+		player_username_labels.get(client.getOppNumber() - 1).setBounds(630, ((28 * client.getOppNumber())), 250, 20);
+		player_username_labels.get(client.getOppNumber() - 1).setHorizontalAlignment(SwingConstants.LEFT);
 		
-			System.out.println(arr[i]);
+		// Opponent's score label
+		player_score_labels.get(client.getOppNumber() - 1).setBounds(770, ((28 * client.getOppNumber())), 250, 20);
+		player_score_labels.get(client.getOppNumber() - 1).setHorizontalAlignment(SwingConstants.LEFT);
+		
+	}
+	
+	public void updateMyScoreLabel() {
+		player_score_labels.get(client.getNumber()-1).setText(Integer.toString(client.getScore()));
+	}
+	
+	public void updateOppScoreLabel() {
+		player_score_labels.get(client.getOppNumber()-1).setText(Integer.toString(client.getOppScore()));
+	}
+
+	// Lets the chosen player play and interact with the game
+	public void play(int player_number) {
+		resetBoard();
+		potential_bank = 0;
+		
+		// Enables control for the user
+		this.player_number = player_number;
+		RollDiceButton.setEnabled(true);
+		
+		// Shows the player it is their turn
+		player_label.setText("It is currently your turn");
+	}
+
+	// Lets the chosen player spectate and not interact with the game
+	public void spectate(int opp_number) {
+		
+		// Shows the player it is their turn
+		player_label.setText("It is currently " + client.getOppUsername() + "'s turn");
+		
+		// Disables control for the user
+		disableControl();
+	}
+
+	// Sets most buttons as disabled and invisible
+	public void disableControl() {
+		// Disabling buttons
+		SetAsideButton.setEnabled(false);
+		RollDiceButton.setEnabled(false);
+		BankScoreButton.setEnabled(false);
+
+		for (int i = 0; i < dice_buttons.size(); i++) {
+			dice_buttons.get(i).setEnabled(false);
 		}
-		int rand = 0;
+	}
+
+	// Sets most buttons as enabled and visible
+	public void enableControl() {
+		// Enabling buttons
+		SetAsideButton.setEnabled(true);
+
+		for (int i = 0; i < dice_buttons.size(); i++) {
+			dice_buttons.get(i).setEnabled(true);
+			dice_buttons.get(i).setVisible(true);
+		}
+	}
+	
+	public void userDisconnectedError() {
+		JOptionPane.showMessageDialog(FarkleGameFrame, "The other user disconnected. Closing game.", "Connection Error", JOptionPane.ERROR_MESSAGE);
+		System.exit(0);
+	}
+	
+	public void userLost() {
+		JOptionPane.showMessageDialog(FarkleGameFrame, "Better luck next time!.", "Game Results", JOptionPane.INFORMATION_MESSAGE);
+		System.exit(0);
+	}
+	
+	public void userWon() {
+		JOptionPane.showMessageDialog(FarkleGameFrame, "You won!!! Looks like luck was on your side!", "Game Results", JOptionPane.INFORMATION_MESSAGE);
+		System.exit(0);
+	}
+
+	// Resets components on the board
+	private void resetBoard() {
+		for (int i = 0; i < dice_buttons.size(); i++) {
+			
+			// Moves buttons back to where they belong :)
+			dice_buttons.get(i).setBounds((90 + (i + 1) * 65), 315, 53, 49);
+			
+			dice_selected.set(i, false);
+			dice_set_aside.set(i, false);
+			
+			// Sets the buttons as invisible
+			dice_buttons.get(i).setVisible(false);
+		}
 		
-		System.out.print(rand);
+		// Clears info labels
+		player_label.setText("");
+		warning_label.setText("");
+		game_label.setText("");
 		
-		return arr;
+		dice_values.clear();
+	}
+
+	// Randomizes the dice for the client
+	private void roll () {
+		
+		// Hides info label
+		warning_label.setText("");
+		
+	    // Random number generator
+	    Random random = new Random();
+	    
+	    // Boolean values
+	    boolean hasOne = false;
+	    boolean hasFive = false;
+
+	    // Creates and populates the empty dice_values array list with random numbers 1-6
+	    if (dice_values.isEmpty()) {
+	        for (int i = 0; i < 6; i++) {
+	            // Sets the dice button's text to its assigned number
+	            int random_num = 1 + random.nextInt(7 - 1);
+	            dice_values.add(random_num);
+	            dice_buttons.get(i).setIcon(new ImageIcon(GUI_Client.class.getResource("/GUI/" + (random_num) + "_dice.jpg")));
+	            enableControl();
+
+	            // Check if the roll contains a one or five
+	            if (random_num == 1) {
+	                hasOne = true;
+	            }
+	            if (random_num == 5) {
+	                hasFive = true;
+	            }
+	        }
+	        
+	        RollDiceButton.setEnabled(false);
+	    }
+	    
+	    // If the dice_values array is not empty and all dice have been selected, that means the player can reroll their
+	    // all of their dice for a potential streak
+	    else if (!dice_values.isEmpty() && !dice_set_aside.contains(false)) {
+	    	warning_label.setText("Lucky Streak!!! Wow!");
+	    	for (int i = 0; i < dice_values.size(); i++) {
+	    		
+	    		// Moves buttons back to where they belong :)
+				dice_buttons.get(i).setBounds((90 + (i + 1) * 65), 315, 53, 49);
+	    		
+	    		dice_set_aside.set(i, false);
+	    		
+	    		int random_num = 1 + random.nextInt(7 - 1);
+                dice_values.set(i, random_num);
+                dice_buttons.get(i).setIcon(new ImageIcon(GUI_Client.class.getResource("/GUI/" + (random_num) + "_dice.jpg")));
+                
+                // Check if the roll contains a one or five
+                if (random_num == 1) {
+                    hasOne = true;
+                }
+                if (random_num == 5) {
+                    hasFive = true;
+                }
+                
+                dice_buttons.get(i).setEnabled(true);
+	    	}
+	    }
+	    
+	    // If the dice_values array is not empty, reroll only the dice that have not been set aside
+	    else if (!dice_values.isEmpty()){
+	        for (int i = 0; i < 6; i++) {
+	            if (dice_set_aside.get(i) == false) {
+	                int random_num = 1 + random.nextInt(7 - 1);
+	                dice_values.set(i, random_num);
+	                dice_buttons.get(i).setIcon(new ImageIcon(GUI_Client.class.getResource("/GUI/" + (random_num) + "_dice.jpg")));
+
+	                // Check if the roll contains a one or five
+	                if (random_num == 1) {
+	                    hasOne = true;
+	                }
+	                if (random_num == 5) {
+	                    hasFive = true;
+	                }
+	            }
+	            else {
+	                dice_buttons.get(i).setEnabled(false);
+	            }
+	        }            
+	    }
+	    
+	    BankScoreButton.setEnabled(false);
+
+	    // Check for farkle
+	    if (!(hasOne || hasFive)) {
+	    	game_label.setText("You farkled!!!");
+	    	warning_label.setText("");
+	        
+	        // Sends to the server the player who farkled
+	        try {
+				client.sendToServer("Farkled_" + player_number);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+	        disableControl();
+	    } 
+	}
+
+	// Gets the score of the currently selected dice
+	public static int getScore(ArrayList<Integer> dice) {
+	    int score = 0;
+	    HashMap<Integer, Integer> countMap = new HashMap<>();
+	    for (int die : dice) {
+	        countMap.put(die, countMap.getOrDefault(die, 0) + 1);
+	    }
+	    for (int die : countMap.keySet()) {
+	        int count = countMap.get(die);
+
+	        
+	        if (die == 1) {
+	            score += count * 100;
+	        } else if (die == 5) {
+	            score += count * 50;
+	        }
+	    }
+	    return score;
 	}
 }
-	

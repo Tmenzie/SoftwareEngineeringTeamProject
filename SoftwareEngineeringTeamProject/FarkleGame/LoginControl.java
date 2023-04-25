@@ -64,15 +64,15 @@ public class LoginControl implements ActionListener
     }
   }
 
-// After the login is successful, set the User object and display the game screen. - this method would be invoked by 
-//the FarkleClient
-public void loginSuccess() {  
-	// Hide login frame
-	jframe.setVisible(false);
-	jframe.dispose();
+  // After the login is successful, set the User object and display the game screen. - this method would be invoked by 
+  //the FarkleClient
+  public void loginSuccess() {  
+	  // Hide login frame
+	  jframe.setVisible(false);
+	  jframe.dispose();
 	
-	// Initialize game
-	gui.initialize();
+	  // Starting initialization
+	  gui.initialize(client.getUsername());
   }
 
   // Method that displays a message in the error - could be invoked by ChatClient or by this class (see above)
