@@ -8,7 +8,7 @@ import java.util.Random;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-//Author: 			Tyler Menzie
+//Author: 			Tyler Menzie and Shandon Probst
 //Description: 		Farkle Game GUI
 
 @SuppressWarnings("serial")
@@ -69,7 +69,7 @@ public class GUI_Client extends JFrame {
 
 	// Connect method
 	public void connectToServer() {
-	    JFrame connectFrame = new JFrame("Connect to Server");
+	    JFrame connectFrame = new JFrame("Farkle Game - Connect to Server");
 	    connectFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 	    connectFrame.setSize(300, 150);
 	    connectFrame.setLocationRelativeTo(null);
@@ -158,7 +158,7 @@ public class GUI_Client extends JFrame {
 		FarkleGameFrame = new JFrame();
 		FarkleGameFrame.setTitle("Farkle Client - Playing as \"" + username + "\"");
 		FarkleGameFrame.getContentPane().setLayout(null);
-		FarkleGameFrame.setSize(1000, 500);
+		FarkleGameFrame.setSize(900, 500);
 		FarkleGameFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		FarkleGameFrame.setResizable(false);
 		FarkleGameFrame.setLocationRelativeTo(null);
@@ -468,12 +468,12 @@ public class GUI_Client extends JFrame {
 	}
 	
 	public void userLost() {
-		JOptionPane.showMessageDialog(FarkleGameFrame, "Better luck next time!.", "Game Results", JOptionPane.INFORMATION_MESSAGE);
+		JOptionPane.showMessageDialog(FarkleGameFrame, "You lost. Better luck next time!.", "Farkle - Game Results", JOptionPane.INFORMATION_MESSAGE);
 		System.exit(0);
 	}
 	
 	public void userWon() {
-		JOptionPane.showMessageDialog(FarkleGameFrame, "You won!!! Looks like luck was on your side!", "Game Results", JOptionPane.INFORMATION_MESSAGE);
+		JOptionPane.showMessageDialog(FarkleGameFrame, "You won!!! Looks like luck was on your side!", "Farkle - Game Results", JOptionPane.INFORMATION_MESSAGE);
 		System.exit(0);
 	}
 

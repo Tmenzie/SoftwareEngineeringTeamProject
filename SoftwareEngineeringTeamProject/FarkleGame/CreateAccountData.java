@@ -3,7 +3,7 @@ package FarkleGame;
 import java.io.Serializable;
 
 //Author: 			Shandon Probst
-//Description:		
+//Description:		Assists in breaking up create account data such as username and password info
 
 @SuppressWarnings("serial")
 public class CreateAccountData implements Serializable {

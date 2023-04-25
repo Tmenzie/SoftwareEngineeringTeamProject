@@ -4,7 +4,7 @@ import java.io.IOException;
 import ocsf.client.AbstractClient;
 
 //Author: 			Shandon Probst
-//Description:		
+//Description:		Handles all relevant information for client and contains main driver
 
 public class FarkleClient extends AbstractClient {
 

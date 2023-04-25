@@ -3,7 +3,7 @@ package FarkleGame;
 import java.io.Serializable;
 
 //Author: 			Shandon Probst
-//Description:		
+//Description:		Used for creating error types
 
 @SuppressWarnings("serial")
 public class Error implements Serializable {

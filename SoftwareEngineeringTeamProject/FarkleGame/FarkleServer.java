@@ -9,7 +9,7 @@ import ocsf.server.AbstractServer;
 import ocsf.server.ConnectionToClient;
 
 //Author: 			Shandon Probst
-//Description:		
+//Description:		Server that connects clients and transmits actions between clients
 
 public class FarkleServer extends AbstractServer {
 

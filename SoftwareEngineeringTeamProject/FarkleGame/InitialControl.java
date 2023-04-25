@@ -5,7 +5,7 @@ import javax.swing.*;
 import java.awt.event.*;
 
 //Author: 			Shandon Probst
-//Description:		
+//Description:		Controls initial panel actions
 
 public class InitialControl implements ActionListener
 {

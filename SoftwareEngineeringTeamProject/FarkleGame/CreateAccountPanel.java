@@ -4,7 +4,7 @@ import java.awt.*;
 import javax.swing.*;
 
 //Author: 			Shandon Probst
-//Description:		
+//Description:		Panel for creating account
 
 @SuppressWarnings("serial")
 public class CreateAccountPanel extends JPanel {

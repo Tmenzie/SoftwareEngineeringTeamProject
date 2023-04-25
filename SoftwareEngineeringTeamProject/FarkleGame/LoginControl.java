@@ -6,7 +6,7 @@ import java.awt.event.*;
 import java.io.IOException;
 
 //Author: 			Shandon Probst
-//Description:		
+//Description:		Control for login panel
 
 public class LoginControl implements ActionListener
 {

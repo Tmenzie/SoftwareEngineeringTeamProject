@@ -16,7 +16,7 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
 //Author: 			Shandon Probst
-//Description:		
+//Description:		Farkle Server GUI
 
 @SuppressWarnings("serial")
 public class GUI_Server extends JFrame {

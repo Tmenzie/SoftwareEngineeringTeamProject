@@ -5,7 +5,7 @@ import java.sql.*;
 import java.io.*;
 
 //Author: 			Shandon Probst
-//Description:		
+//Description:		Database which is used to access and store username/password values in users table
 
 public class Database {
 

@@ -4,7 +4,7 @@ import java.awt.*;
 import javax.swing.*;
 
 //Author: 			Shandon Probst
-//Description:		
+//Description:		Login panel containing options to enter username and password
 
 @SuppressWarnings("serial")
 public class LoginPanel extends JPanel

@@ -6,7 +6,7 @@ import java.awt.event.*;
 import java.io.IOException;
 
 //Author: 			Shandon Probst
-//Description:		
+//Description:		Controls create account panel actions
 
 public class CreateAccountControl implements ActionListener {
 	

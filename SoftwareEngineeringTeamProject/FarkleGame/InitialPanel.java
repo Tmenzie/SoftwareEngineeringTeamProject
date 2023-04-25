@@ -4,7 +4,7 @@ import java.awt.*;
 import javax.swing.*;
 
 //Author: 			Shandon Probst
-//Description:		
+//Description:		Initial panel GUI containing options for login or create account
 
 @SuppressWarnings("serial")
 public class InitialPanel extends JPanel
