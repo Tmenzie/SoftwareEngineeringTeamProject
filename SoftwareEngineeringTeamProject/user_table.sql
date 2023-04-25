@@ -1,7 +1,7 @@
 -- creates the table 'users' and stores
 -- usernames and passwords
 CREATE TABLE users (
-	username varchar(30) NOT NULL,
+	username varchar(30),
 	encrypted_password varbinary(30)
 );
 
