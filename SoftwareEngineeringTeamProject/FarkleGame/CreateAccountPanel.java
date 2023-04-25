@@ -27,7 +27,7 @@ public class CreateAccountPanel extends JPanel {
 		// Creation of instruction label
 		JLabel instructionLabel = new JLabel("Enter a username and password to create an account.", JLabel.CENTER);
 		JLabel instructionLabel2 = new JLabel("Your password must be at least 6 characters.", JLabel.CENTER); 
-		JLabel instructionLabel3 = new JLabel("You will be logged in upon successful account creation.", JLabel.CENTER);
+		JLabel instructionLabel3 = new JLabel("You will be redirected to the home screen upon successful account creation.", JLabel.CENTER);
 		
 		// Adds labels to label panel
 		labelPanel.add(errorLabel);

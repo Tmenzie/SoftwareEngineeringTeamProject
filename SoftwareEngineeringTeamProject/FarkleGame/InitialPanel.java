@@ -6,6 +6,7 @@ import javax.swing.*;
 //Author: 			Shandon Probst
 //Description:		
 
+@SuppressWarnings("serial")
 public class InitialPanel extends JPanel
 {
   // Constructor for the initial panel.
@@ -24,7 +25,7 @@ public class InitialPanel extends JPanel
     loginButtonBuffer.add(loginButton);
     
     // Create the create account button.
-    JButton createButton = new JButton("Create and Login");
+    JButton createButton = new JButton("Create Account");
     createButton.addActionListener(ic);
     JPanel createButtonBuffer = new JPanel();
     createButtonBuffer.add(createButton);

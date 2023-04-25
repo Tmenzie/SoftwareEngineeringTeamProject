@@ -1,8 +1,6 @@
 package FarkleGame;
 
 import java.io.IOException;
-import java.io.Serializable;
-import java.util.ArrayList;
 
 import ocsf.client.AbstractClient;
 
@@ -17,16 +15,19 @@ public class FarkleClient extends AbstractClient {
 	// Controllers
 	private LoginControl loginControl;
 	private CreateAccountControl createAccountControl;
-
-	// Variables
+	
+	// User vars
 	private String username;
-	private String opp_username;
 	private int player_number;
 	private int score;
+	
+	// Opponent vars
+	private String opp_username;
+	private int opp_number;
+	private int opp_score;
 
 	// Constructor
 	public FarkleClient() {
-
 		super("localhost", 8300);
 	}
 
@@ -65,6 +66,16 @@ public class FarkleClient extends AbstractClient {
 		return this.username;
 	}
 	
+	// Sets the user's player number
+	public void setNumber(int player_number) {
+		this.player_number = player_number;
+	}
+	
+	// Gets the user's player number
+	public int getNumber() {
+		return this.player_number;
+	}
+	
 	// Sets the current opponenet's username
 	public void setOppUsername(String opp_username) {
 		this.opp_username = opp_username;
@@ -73,6 +84,16 @@ public class FarkleClient extends AbstractClient {
 	// Gets the current opponent's username
 	public String getOppUsername() {
 		return this.opp_username;
+	}
+	
+	// Sets the opponent's player number
+	public void setOppNumber(int opp_number) {
+		this.opp_number = opp_number;
+	}
+	
+	// Gets the opponent's player number
+	public int getOppNumber() {
+		return this.opp_number;
 	}
 
 	// Sets the current player's score
@@ -83,6 +104,16 @@ public class FarkleClient extends AbstractClient {
 	// Gets the current player's score
 	public int getScore() {
 		return this.score;
+	}
+	
+	// Sets the opponent's score
+	public void setOppScore(int opp_score) {
+		this.opp_score = opp_score;
+	}
+	
+	// Gets the opponent's score
+	public int getOppScore() {
+		return this.opp_score;
 	}
 
 	@Override
@@ -100,24 +131,44 @@ public class FarkleClient extends AbstractClient {
 			}
 			// Tells controller account creation was successful
 			else if (message.startsWith("CreateAccountSuccessful_")) {
-				this.setUsername(message.substring(24));
-				loginControl.loginSuccess();
+				createAccountControl.createAccountSuccess();
 			}
 
 			// Tells the client to close the connection with the server
 			else if (message.startsWith("Disconnect")) {
-				try {
-					this.closeConnection();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+					client_gui.userDisconnectedError();
 			}
 
 			// Tells the client the game is starting
 			else if (message.startsWith("StartGame_")) {
 				this.player_number = Integer.parseInt(message.substring(10));
 				System.out.println("I am player #" + player_number);
+				setNumber(player_number);
+				
+				if (player_number == 1) {
+					setOppNumber(2);
+					
+				}
+				else if (player_number == 2) {
+					setOppNumber(1);
+				}
+				
+				try {
+					this.sendToServer("Starting_" + player_number);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			
+			else if (message.startsWith("Winner_")) {
+				int winner_number = Integer.parseInt(message.substring(7));
+				if (player_number == winner_number) {
+					client_gui.userLost();
+				}
+				else {
+					client_gui.userLost();
+				}
 			}
 
 			else if (message.startsWith("EndGame_")) {
@@ -138,13 +189,26 @@ public class FarkleClient extends AbstractClient {
 
 				// Disables control the other player
 				else {
-					client_gui.spectate(player_number);
+					client_gui.spectate(opp_number);
 				}
+			}
+			
+			else if (message.startsWith("OppoScored_")) {
+				setOppScore(Integer.parseInt(message.substring(11)));
+				client_gui.updateOppScoreLabel();
 			}
 			
 			// Sets the clien't opponent's username
 			else if (message.startsWith("OppUsername_")) {
 				this.setOppUsername(message.substring(12));
+				client_gui.setMyLabel();
+				client_gui.setOpponentLabel();
+			}
+			
+			// Sets the labels of the client and their opponent
+			else if (message.startsWith("SetLabels")) {
+				client_gui.setMyLabel();
+				client_gui.setOpponentLabel();
 			}
 		}
 
@@ -177,14 +241,19 @@ public class FarkleClient extends AbstractClient {
 			client.openConnection();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			//e.printStackTrace();
 		}
+		
+		if (client.isConnected()) {
+			// Creation of Farkle GUI for client
+			GUI_Client client_gui = new GUI_Client(client);
 
-		// Creation of Farkle GUI for client
-		GUI_Client client_gui = new GUI_Client(client);
-
-		// Tells the client GUI to start the login process
-		// The rest of the processes from here are handled by other classes/methods
-		client_gui.login(client_gui);
+			// Tells the client GUI to start the login process
+			// The rest of the processes from here are handled by other classes/methods
+			client_gui.login(client_gui);
+		}
+		else {
+			System.err.println("Could not connect to server at localhost:8300");
+		}
 	}
 }

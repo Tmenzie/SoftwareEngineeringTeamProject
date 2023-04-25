@@ -13,6 +13,9 @@ import ocsf.server.ConnectionToClient;
 
 public class FarkleServer extends AbstractServer {
 
+	// Final Variables
+	final int WINNING_SCORE = 3000;		// The score required to win
+	
 	// Objects
 	private Database database;
 
@@ -25,9 +28,7 @@ public class FarkleServer extends AbstractServer {
 	// Variables
 	private ArrayList<Long> client_ids;
 	private ArrayList<ConnectionToClient> client_connections;
-	private ArrayList<Integer> client_scores;
 	private ArrayList<String> client_users_connected;
-	private boolean game_started;
 
 	// Constructor
 	public FarkleServer() {
@@ -41,10 +42,7 @@ public class FarkleServer extends AbstractServer {
 
 		this.client_ids = new ArrayList<Long>();
 		this.client_connections = new ArrayList<ConnectionToClient>();
-		this.client_scores = new ArrayList<Integer>();
 		this.client_users_connected = new ArrayList<String>();
-
-		this.game_started = false;
 	}
 
 	public void setLog(JTextArea log) {
@@ -126,17 +124,6 @@ public class FarkleServer extends AbstractServer {
 					toClient = "CreateAccountSuccessful_" + toCreate.getUsername();
 					log.append("Client " + arg1.getId() + " created a new account called \"" + toCreate.getUsername()
 							+ "\"\n");
-					log.append("Client " + arg1.getId() + " successfully logged in as \"" + toCreate.getUsername()
-							+ "\"\n");
-					client_connections.add(arg1);
-
-					// Checks if only one player is connected
-					if (client_connections.size() == 1) {
-						log.append("Client " + arg1.getId() + " (\"" + toCreate.getUsername()
-								+ "\") is waiting for more players to connect\n");
-					} else {
-						log.append("All players have connected.\n");
-					}
 				}
 
 				// If there is an error, make object an error and set the message and message
@@ -154,27 +141,6 @@ public class FarkleServer extends AbstractServer {
 				catch (IOException e) {
 					return;
 				}
-			}
-
-			// Checks to see if there is currently more than 1 user logged in
-			// Tells both users to start their game and begins with player 1's turn
-			if (client_connections.size() > 1) {
-				int player_number = 0;
-				for (int i = 0; i < client_connections.size(); i++) {
-					try {
-						log.append("Telling Client #" + client_ids.get(i) + " to start the game\n");
-						player_number = i + 1;
-						client_connections.get(i).sendToClient("StartGame_" + player_number);
-						client_connections.get(i).sendToClient("OppUsername_" + client_users_connected.get(i));
-						
-						game_started = true;
-					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				}
-				// Tells the game to start with player #1
-				sendToAllClients("PlayerTurn_1");
 			}
 		}
 
@@ -199,12 +165,67 @@ public class FarkleServer extends AbstractServer {
 			
 			// If message is bank score, then get the player who banked and set the current turn to the next player
 			if (message.startsWith("BankScore_")) {
+				// Gets score value
+				int score = Integer.parseInt(message.substring(12));
+				
+				log.append("Player #" + message.substring(10, 11) + " now has " + score + " points\n");
+				
+				if (score >= WINNING_SCORE) {
+					log.append("Player #" + message.substring(10, 11) + " won the game with " + score + " points\n");
+					sendToAllClients("Winner_" + message.substring(10, 11));
+				}
+				else {
+					for (int i = 0; i < client_users_connected.size(); i++) {
+
+						if (!message.substring(10, 11).equals(Integer.toString(i + 1))) {
+							try {
+								client_connections.get(i).sendToClient("OppoScored_" + score);
+							} catch (IOException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+							sendToAllClients("PlayerTurn_" + (i + 1));
+							log.append("Telling clients it is now Client #" + arg1.getId() + "'s turn\n");
+						}
+					}
+				}
+			}
+			
+			// If the message is farkle, then it is now the next player's turn
+			else if (message.startsWith("Farkled_")) {
+				log.append("Telling clients that Client #" + arg1.getId() + " farkled\n");
 				for (int i = 0; i < client_users_connected.size(); i++) {
-					if (!message.substring(10).equals(Integer.toString(i + 1))) {
+					if (!message.substring(8).equals(Integer.toString(i + 1))) {
 						sendToAllClients("PlayerTurn_" + (i + 1));
+						log.append("Client #" + arg1.getId() + " farkled\n");
 						log.append("Telling clients it is now Client #" + arg1.getId() + "'s turn\n");
 					}
 				}
+			}
+			
+			// If the message is starting, then the player will be given their opponent's name
+			else if (message.startsWith("Starting")) {
+				for (int i = 0; i < client_users_connected.size(); i++) {
+					if (i == 0) {
+						try {
+							client_connections.get(i).sendToClient("OppUsername_" + client_users_connected.get(1).substring(3));
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+					else if (i == 1) {
+						try {
+							client_connections.get(i).sendToClient("OppUsername_" + client_users_connected.get(0).substring(3));
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+				}
+				// Tells the game to start with player #1
+				sendToAllClients("SetLabels");
+				sendToAllClients("PlayerTurn_1");
 			}
 		}
 	}
@@ -236,20 +257,9 @@ public class FarkleServer extends AbstractServer {
 		client_ids.add((long) client.getId());
 	}
 
-	public void clientDisconnected(ConnectionToClient client) {
-		// Displays when a client disconnects
-		log.append("Client " + client.getId() + " disconnected" + "\n");
-		try {
-			client.sendToClient("Disconnect");
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-
 	public void clientException(ConnectionToClient client, Throwable exception) {
 		// Displays when a client unexpectedly disconnects
-		log.append("Client " + client.getId() + " severed connection to server" + "\n");
+		log.append("Client " + client.getId() + " disconnected" + "\n");
 
 		// Removes the client that was disconnected from the arrays
 		client_connections.remove(client);
@@ -264,13 +274,13 @@ public class FarkleServer extends AbstractServer {
 
 		// Disconnects all clients if one disconnects
 		if (client_users_connected.size() <= 1) {
-			sendToAllClients("EndGame_");
+			sendToAllClients("Disconnect");
 		}
 	}
 
 	// Main driver
 	// Creates farkle server GUI
 	public static void main(String[] args) {
-		GUI_Server server_gui = new GUI_Server(); // args[0] represents the title of the GUI
+		new GUI_Server();
 	}
 }
