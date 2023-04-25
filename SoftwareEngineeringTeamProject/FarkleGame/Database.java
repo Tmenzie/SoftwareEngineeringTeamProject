@@ -11,11 +11,24 @@ public class Database {
 
 	// Private connection object
 	private Connection connection;
+	
+	private FileInputStream fis;
+	
+	public void setStream(String fn) throws FileNotFoundException
+    {
+      fis = new FileInputStream(fn);
+
+    }
+	public FileInputStream getStream()
+    {
+      return fis;
+    }
 
 	public Database() {
 		// Creation of properties and file input objects
 		Properties file_properties = new Properties();
 		FileInputStream fis = null;
+		
 
 		try {
 			fis = new FileInputStream("FarkleGame/farkle_database.properties");

@@ -9,10 +9,11 @@ import javax.swing.*;
 @SuppressWarnings("serial")
 public class CreateAccountPanel extends JPanel {
 	
-	private JTextField usernameField;
-	private JPasswordField passwordField;
-	private JPasswordField passwordVerifyField;
-	private JLabel errorLabel;
+	// Set to public because of lazinss
+	public JTextField usernameField;
+	public JPasswordField passwordField;
+	public JPasswordField passwordVerifyField;
+	public JLabel errorLabel;
   
 	// CreateAccountPanel constructor
 	public CreateAccountPanel(CreateAccountControl cac) {
